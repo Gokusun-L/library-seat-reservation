@@ -1,0 +1,36 @@
+{
+  "name": "library-seat-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "高校图书馆座位预约系统 - 后端服务（实验三 第一棒交付）",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "init:db": "node scripts/init-db.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "node --test test/*.test.js",
+    "test:watch": "node --test --watch test/*.test.js"
+  },
+  "keywords": [
+    "library",
+    "seat",
+    "reservation",
+    "express",
+    "sqlite"
+  ],
+  "author": "敏捷先锋队",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "supertest": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
