@@ -1,0 +1,80 @@
+### 图书馆座位预约系统 · 接口冒烟测试
+### 用法：VS Code 安装 REST Client 插件，点每个请求上方的 Send Request；或按下方 curl 直接跑
+@host = http://localhost:3000
+@userId = 202411701223
+@date = 2026-10-22
+@slot = MORNING
+
+### 0. 健康检查
+GET {{host}}/api/health
+
+### 0.1 时间段枚举
+GET {{host}}/api/meta/slots
+
+### 1. 阅览室列表（US-01a）
+GET {{host}}/api/reading-rooms
+
+### 1.1 关键字搜索
+GET {{host}}/api/reading-rooms?keyword=考研
+
+### 2. 座位布局（US-01b 静态）
+GET {{host}}/api/reading-rooms/1/layout
+
+### 3. 座位状态（US-01b 动态，三态）
+GET {{host}}/api/reading-rooms/1/seats?date={{date}}&slot={{slot}}
+
+### 4. 创建预约（US-02）
+POST {{host}}/api/reservations
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "userName": "温佳鑫",
+  "roomId": 1,
+  "seatId": 10,
+  "date": "{{date}}",
+  "slot": "{{slot}}"
+}
+
+### 4.1 重复预约同一时段（期望 40902）
+POST {{host}}/api/reservations
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "roomId": 1,
+  "seatId": 11,
+  "date": "{{date}}",
+  "slot": "{{slot}}"
+}
+
+### 4.2 抢别人已约的座位（期望 40901）
+POST {{host}}/api/reservations
+Content-Type: application/json
+
+{
+  "userId": "202411701224",
+  "roomId": 1,
+  "seatId": 10,
+  "date": "{{date}}",
+  "slot": "{{slot}}"
+}
+
+### 4.3 预约昨天的时段（期望 40905）
+POST {{host}}/api/reservations
+Content-Type: application/json
+
+{
+  "userId": "202411701225",
+  "roomId": 1,
+  "seatId": 12,
+  "date": "2026-10-20",
+  "slot": "MORNING"
+}
+
+### 5. 我的预约列表（US-03）
+GET {{host}}/api/reservations?userId={{userId}}
+
+### ---- 等价 curl ----
+### curl -s {{host}}/api/reading-rooms
+### curl -s -X POST {{host}}/api/reservations -H "Content-Type: application/json" -d "{\"userId\":\"202411701223\",\"roomId\":1,\"seatId\":10,\"date\":\"2026-10-22\",\"slot\":\"MORNING\"}"
