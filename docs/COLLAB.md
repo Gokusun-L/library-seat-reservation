@@ -32,6 +32,7 @@ git push -u origin main
 
 然后到 `Settings → Collaborators` 邀请 4 位成员；`Settings → Branches → Add branch protection rule`：
 - 保护 `main`：要求 PR 合并、要求至少 1 个 approve、要求 CI 通过（本仓库已带 `.github/workflows/ci.yml`，PR 会自动跑 lint + 单测）。
+  > 注意：**私有仓库**的分支保护需要 GitHub Pro/Team 套餐，免费个人账号对私有库不可用。若开不了，就用「`main` 只接受 PR 合并 + 口头约定不直接推 main」，并把这条规则写进团队承诺书。
 
 ### 2.2 PingCode
 
