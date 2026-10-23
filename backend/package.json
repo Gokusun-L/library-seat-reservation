@@ -23,7 +23,7 @@
   "author": "敏捷先锋队",
   "license": "MIT",
   "dependencies": {
-    "better-sqlite3": "^11.5.0",
+    "better-sqlite3": "^12.11.1",
     "express": "^4.21.1"
   },
   "devDependencies": {
@@ -31,6 +31,6 @@
     "supertest": "^7.0.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }

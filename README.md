@@ -10,7 +10,7 @@
 
 | 层 | 选型 | 理由 |
 | --- | --- | --- |
-| 运行时 | Node.js ≥ 18 | 组内成员本机都有，`npm i` 即可跑 |
+| 运行时 | Node.js ≥ 20 | 组内成员本机都有，`npm i` 即可跑；20/22/24 均已验证（better-sqlite3 12 提供预编译二进制，无需本地编译） |
 | Web 框架 | Express 4 | 路由/中间件模型简单，接第二棒成本低 |
 | 数据库 | SQLite（better-sqlite3） | 免安装服务、单文件可随仓库/演示拷贝；SQL 与 MySQL 高度兼容，后续换 MySQL 只需改连接层 |
 | 测试 | node:test + supertest | Node 内置测试运行器，零额外框架配置 |
