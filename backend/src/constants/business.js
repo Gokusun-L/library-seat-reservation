@@ -45,6 +45,12 @@ const ROOM_STATUS = {
 /** 「有效」预约：会占用座位的状态（取消/超时/完成都不再占用） */
 const ACTIVE_RESERVATION_STATUS = [RESERVATION_STATUS.PENDING, RESERVATION_STATUS.CHECKED_IN];
 
+/**
+ * 签到窗口：开始前后各 15 分钟（US-04 验收标准）
+ * 提前超过 15 分钟不能签，迟到超过 15 分钟由定时任务释放（US-06）
+ */
+const CHECKIN_WINDOW_MINUTES = 15;
+
 module.exports = {
   SLOTS,
   SLOT_CODES,
@@ -53,4 +59,5 @@ module.exports = {
   SEAT_TYPE,
   ROOM_STATUS,
   ACTIVE_RESERVATION_STATUS,
+  CHECKIN_WINDOW_MINUTES,
 };

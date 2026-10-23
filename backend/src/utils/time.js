@@ -53,6 +53,18 @@ function addDays(dateStr, dayOffset) {
   return formatDate(dt);
 }
 
+/**
+ * 在 'YYYY-MM-DD HH:mm' 上加减分钟，返回同格式字符串
+ * 用途：签到窗口 = 开始时间 ± 15 分钟（US-04）
+ */
+function addMinutes(dateTimeStr, minutes) {
+  const [datePart, timePart] = String(dateTimeStr).split(' ');
+  const [y, m, d] = datePart.split('-').map(Number);
+  const [hh, mm] = timePart.split(':').map(Number);
+  const dt = new Date(y, m - 1, d, hh, mm + minutes);
+  return formatDateTime(dt);
+}
+
 /** 距今天数差：dateStr 相对 todayIso（负数=过去） */
 function diffDays(dateStr, todayIso = today()) {
   const toUtc = (s) => {
@@ -76,6 +88,7 @@ module.exports = {
   isValidDateTime,
   buildSlotWindow,
   addDays,
+  addMinutes,
   diffDays,
   compareDateTime,
 };

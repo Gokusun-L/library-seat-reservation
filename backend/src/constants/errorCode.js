@@ -35,6 +35,7 @@ const ERROR_CODE = {
   NO_PENDING_RESERVATION: 50002, // 当前没有待签到的预约
   SEAT_NOT_MATCH: 50003, // 扫码座位与预约座位不一致
   RESERVATION_NOT_CANCELLABLE: 50004, // 当前状态不允许取消
+  CHECKIN_DUPLICATE: 50005, // 该预约已签到（重复扫码）
 
   INTERNAL_ERROR: 50000, // 未知服务端异常
 };
@@ -61,13 +62,15 @@ const ERROR_MESSAGE = {
   [ERROR_CODE.NO_PENDING_RESERVATION]: '您当前没有待签到的预约',
   [ERROR_CODE.SEAT_NOT_MATCH]: '座位号不匹配',
   [ERROR_CODE.RESERVATION_NOT_CANCELLABLE]: '当前预约状态不允许取消',
+  [ERROR_CODE.CHECKIN_DUPLICATE]: '该预约已签到，请勿重复扫码',
   [ERROR_CODE.INTERNAL_ERROR]: '服务器开小差了，请稍后重试',
 };
 
 /** 业务码 → HTTP 状态码 */
 function httpStatusOf(code) {
   if (code === ERROR_CODE.OK) return 200;
-  if (code >= 50000) return code >= 50001 && code <= 50004 ? 409 : 500;
+  // 5xxxx 段：50000 是服务端未知异常（500），50001+ 是可预期的履约类冲突（409）
+  if (code >= 50000) return code > 50000 && code < 50100 ? 409 : 500;
   if (code >= 40400 && code < 40500) return 404;
   if (code === ERROR_CODE.UNAUTHORIZED) return 401;
   if (code >= 40900) return 409;
