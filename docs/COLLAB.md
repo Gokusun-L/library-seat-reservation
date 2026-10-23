@@ -41,6 +41,7 @@ git push -u origin main
 3. 把实验一/二的成果搬进去（这是最省事的一步，直接决定后面好不好用）：
    - **需求**模块：建 8 条用户故事（US-01a/01b/02/03/04/05/06/07），标题用「作为学生，我想…以便…」，描述里粘验收标准（Given-When-Then），填优先级（P0/P1/P2）和故事点（1/2/3/5/8）。
    - **任务**模块：把 US-02 的 T1–T7、US-04 的 T1–T7 等作为子任务挂到对应需求下，填预估工时（对齐分工表的 6h/8h/3h…）。
+     > 工时口径以 [`docs/ROLES.md`](ROLES.md) 为准：五棒各 31.5h，合计 157.5h（写代码/文档 122.5h + 报告 35h），Task 级拆分见该文档第 2 节。
    - 每个 Task 的**负责人**填对应棒次的成员——这就是分工证据。
 4. 建**迭代（Sprint）**：「实验三 Sprint 1」，周期填 2 周，把 Sprint Backlog 的 6 个故事（19 点）拉进迭代。
 5. **看板**视图：列设为 `待办 / 进行中 / 待评审 / 已完成`（与团队 DoD 对齐）。
@@ -118,3 +119,4 @@ git push -u origin feature/US-02-reservation
 - `.eslintrc.json`：团队代码规范（DoD 第 2 条）
 - `backend/docs/API.md`：接口约定，跨棒改动的唯一真源
 - `backend/docs/HANDOFF.md`：每棒交接清单模板
+- `docs/ROLES.md`：五棒分工与工时清单（PingCode 建 Task、填工时的口径来源）
