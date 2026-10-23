@@ -3,7 +3,7 @@
  * 第二棒要在此扩展：findById（已有）、updateStatus（已有）、findExpired（超时释放扫描）。
  */
 const { getDb } = require('../db');
-const { ACTIVE_RESERVATION_STATUS } = require('../constants/business');
+const { ACTIVE_RESERVATION_STATUS, CHECKIN_WINDOW_MINUTES } = require('../constants/business');
 
 const ACTIVE_PLACEHOLDER = ACTIVE_RESERVATION_STATUS.map(() => '?').join(',');
 
@@ -155,14 +155,60 @@ function updateStatus(id, status, extra = {}) {
   return findById(id);
 }
 
+/**
+ * 条件更新状态（CAS）：只有当前状态等于 fromStatus 才更新
+ * 用于签到 / 取消 / 超时释放 —— 先查后改在并发下会双写，这里用 WHERE status=? 兜底。
+ * @returns {boolean} 是否真的改动了 1 行（false 表示状态已被别人改走）
+ */
+function updateStatusIf(id, fromStatus, toStatus, extra = {}) {
+  const sets = ['status = @toStatus', "updated_at = datetime('now','localtime')"];
+  const params = { id, fromStatus, toStatus };
+  if (extra.checkinTime !== undefined) {
+    sets.push('checkin_time = @checkinTime');
+    params.checkinTime = extra.checkinTime;
+  }
+  if (extra.cancelledAt !== undefined) {
+    sets.push('cancelled_at = @cancelledAt');
+    params.cancelledAt = extra.cancelledAt;
+  }
+  const info = getDb()
+    .prepare(`UPDATE reservation SET ${sets.join(', ')} WHERE id = @id AND status = @fromStatus`)
+    .run(params);
+  return info.changes === 1;
+}
+
+/** 某用户指定状态的全部预约（第二棒签到：找待签到 / 判断是否已签到） */
+function findByUserStatus(userId, status) {
+  return getDb()
+    .prepare(
+      `SELECT * FROM reservation
+        WHERE user_id = ? AND status = ?
+        ORDER BY start_time`
+    )
+    .all(userId, status)
+    .map(toEntity);
+}
 /** 超时未签到扫描（第二棒 US-06 定时任务使用：开始时间 + 15 分钟仍未签到） */
 function findExpiredPending(nowDateTime) {
   return getDb()
     .prepare(
       `SELECT * FROM reservation
         WHERE status = 'PENDING'
-          AND datetime(start_time, '+15 minutes') <= datetime(?)
+          AND datetime(start_time, '+${CHECKIN_WINDOW_MINUTES} minutes') <= datetime(?)
         ORDER BY start_time`
+    )
+    .all(nowDateTime)
+    .map(toEntity);
+}
+
+/** 已过结束时间但仍是「使用中」的预约（US-06：签到后到点自动置为已完成） */
+function findCheckedInFinished(nowDateTime) {
+  return getDb()
+    .prepare(
+      `SELECT * FROM reservation
+        WHERE status = 'CHECKED_IN'
+          AND datetime(end_time) <= datetime(?)
+        ORDER BY end_time`
     )
     .all(nowDateTime)
     .map(toEntity);
@@ -176,7 +222,10 @@ module.exports = {
   findActiveByUser,
   findOccupiedByRoom,
   findByUser,
+  findByUserStatus,
   updateStatus,
+  updateStatusIf,
   findExpiredPending,
+  findCheckedInFinished,
   toEntity,
 };

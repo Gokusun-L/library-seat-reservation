@@ -29,6 +29,13 @@ function findById(id) {
   return toEntity(getDb().prepare('SELECT * FROM seat WHERE id = ?').get(id));
 }
 
+/** 按「阅览室 + 座位号」查座位（第二棒扫码签到：从二维码内容反解出座位） */
+function findByRoomAndNo(roomId, seatNo) {
+  return toEntity(
+    getDb().prepare('SELECT * FROM seat WHERE room_id = ? AND seat_no = ?').get(roomId, seatNo)
+  );
+}
+
 function countByRoom(roomId) {
   const row = getDb()
     .prepare(
@@ -73,4 +80,12 @@ function buildQrcode(roomId, seatNo) {
   return `LIBSEAT:ROOM:${roomId}:SEAT:${seatNo}`;
 }
 
-module.exports = { findByRoom, findById, countByRoom, bulkInsert, buildQrcode, toEntity };
+module.exports = {
+  findByRoom,
+  findById,
+  findByRoomAndNo,
+  countByRoom,
+  bulkInsert,
+  buildQrcode,
+  toEntity,
+};
