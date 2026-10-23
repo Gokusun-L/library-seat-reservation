@@ -3,6 +3,7 @@
  */
 const express = require('express');
 const roomRoutes = require('./routes/roomRoutes');
+const seatRoutes = require('./routes/seatRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const metaRoutes = require('./routes/metaRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
@@ -28,6 +29,7 @@ function createApp() {
 
   app.use('/api', metaRoutes);
   app.use('/api/reading-rooms', roomRoutes);
+  app.use('/api/seats', seatRoutes);
   app.use('/api/reservations', reservationRoutes);
 
   app.use(notFoundHandler);
