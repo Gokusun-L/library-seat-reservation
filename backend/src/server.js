@@ -5,6 +5,7 @@
 const { createApp } = require('./app');
 const { initDatabase, resolveDbFile } = require('./db');
 const seed = require('./db/seed');
+const maintenanceService = require('./service/maintenanceService');
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -23,10 +24,14 @@ const server = app.listen(PORT, () => {
   console.log('==============================================');
 });
 
+// US-06：每 60 秒扫描一次，超时未签到 → EXPIRED，已过结束时间 → COMPLETED
+const maintenanceTimer = maintenanceService.startScheduler();
+
 // 优雅退出：关闭 HTTP 连接，避免端口占用导致下次启动失败
 for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, () => {
     console.log(`\n收到 ${sig}，正在关闭服务...`);
+    if (maintenanceTimer) clearInterval(maintenanceTimer);
     server.close(() => process.exit(0));
   });
 }
