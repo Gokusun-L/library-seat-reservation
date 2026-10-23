@@ -75,6 +75,52 @@ Content-Type: application/json
 ### 5. 我的预约列表（US-03）
 GET {{host}}/api/reservations?userId={{userId}}
 
+### 6. 座位二维码（US-04，返回二维码原文 + base64 图片）
+GET {{host}}/api/seats/10/qrcode
+
+### 7. 扫码签到（US-04）
+### 说明：qrcode 字段填座位二维码原文；只有「开始前后 15 分钟内」且「该用户有待签到预约」才成功
+POST {{host}}/api/reservations/checkin
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "qrcode": "LIBSEAT:ROOM:1:SEAT:A-03"
+}
+
+### 7.1 重复签到（期望 50005）
+POST {{host}}/api/reservations/checkin
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "qrcode": "LIBSEAT:ROOM:1:SEAT:A-03"
+}
+
+### 7.2 二维码格式非法（期望 40002）
+POST {{host}}/api/reservations/checkin
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "qrcode": "https://example.com/seat/10"
+}
+
+### 8. 预约详情（US-03，含 canCheckin / canCancel / checkinWindow）
+GET {{host}}/api/reservations/1?userId={{userId}}
+
+### 9. 取消预约（US-05，只有 PENDING 可取消）
+POST {{host}}/api/reservations/1/cancel
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}"
+}
+
+### 10. 履约维护任务（US-06）
+### 没有 HTTP 入口：服务启动后每 60 秒自动跑一次（超时未签到 → EXPIRED，过结束时间 → COMPLETED）。
+### 手动验证：把某条预约的 start_time 改成 20 分钟前，等下一轮扫描后 GET 详情看状态是否变 EXPIRED。
+
 ### ---- 等价 curl ----
 ### curl -s {{host}}/api/reading-rooms
 ### curl -s -X POST {{host}}/api/reservations -H "Content-Type: application/json" -d "{\"userId\":\"202411701223\",\"roomId\":1,\"seatId\":10,\"date\":\"2026-10-22\",\"slot\":\"MORNING\"}"

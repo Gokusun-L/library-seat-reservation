@@ -1,6 +1,7 @@
-# 接口文档 v1.0（第一棒交接版）
+# 接口文档 v1.1（第二棒交接版）
 
-> 状态：5 个基础接口已实现并通过单元测试。第二棒在此文档上增量补充签到/取消/详情接口，**已有字段与错误码不得删改**（第三~五棒前端已按此对接）。
+> 状态：第一棒 5 个基础接口 + 第二棒 4 个履约接口（二维码 / 扫码签到 / 预约详情 / 取消预约）已实现并通过单元测试（41 例）。
+> **已有字段与错误码不得删改**（第三~五棒前端已按此对接）；新增能力只在 5xxxx 错误码段追加、在本文档末尾追加章节。
 > 服务地址：`http://localhost:3000`；所有接口前缀 `/api`。
 > 完整可复制示例见仓库 `scripts/smoke-test.http`。
 
@@ -33,7 +34,10 @@
 | `status` 座位图三态 | `FREE` / `RESERVED` / `IN_USE` / `DISABLED` | 空闲（可约）/ 已预约待签到 / 使用中 / 停用 |
 | `seatType` | `NORMAL` / `POWER` / `WINDOW` | 普通 / 带电源 / 靠窗 |
 
+> 状态流转（第二棒起全部走 CAS，非法流转直接报错）：`PENDING` --签到--> `CHECKED_IN` --到点--> `COMPLETED`；`PENDING` --取消--> `CANCELLED`；`PENDING` --超时未签到--> `EXPIRED`。
+
 `GET /api/meta/slots` 与 `GET /api/meta/status` 可直接拉到上述枚举，前端不要硬编码。
+`GET /api/meta/status` 额外返回 `checkinWindowMinutes`（签到窗口半径，当前 15），前端提示文案不必写死。
 
 ### 0.4 时间格式
 
@@ -220,7 +224,145 @@ curl -X POST http://localhost:3000/api/reservations \
 
 ---
 
-## 6. 错误码表
+## 6. 座位二维码（US-04）
+
+`GET /api/seats/:seatId/qrcode`
+
+**响应 data**
+
+```json
+{
+  "seatId": 10,
+  "seatNo": "A-02",
+  "roomId": 1,
+  "roomName": "一楼综合阅览室",
+  "qrcode": "LIBSEAT:ROOM:1:SEAT:A-02",
+  "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...",
+  "mimeType": "image/png"
+}
+```
+
+- `qrcode` 是二维码里的**原文**，座位表里按 `LIBSEAT:ROOM:{roomId}:SEAT:{seatNo}` 生成，签到接口按此规则反解。
+- `dataUrl` 是 base64 图片（256×256 PNG），小程序 `<image src="{{dataUrl}}">` 直接渲染；不需要图片时只用 `qrcode` 字段即可。
+- 用途：打印/贴到座位桌角，或在小程序里给「该座位二维码」页面用。
+
+**错误**：`40002` seatId 非正整数；`40402` 座位不存在。
+
+## 7. 扫码签到（US-04）
+
+`POST /api/reservations/checkin`　`Content-Type: application/json`
+
+**Body**
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| userId | string | 是 | 预约人标识（openid/学号） |
+| qrcode | string | 是 | 扫到的二维码原文，如 `LIBSEAT:ROOM:1:SEAT:A-02` |
+
+**请求示例**
+
+```bash
+curl -X POST http://localhost:3000/api/reservations/checkin \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"202411701223","qrcode":"LIBSEAT:ROOM:1:SEAT:A-02"}'
+```
+
+**成功响应 `200`**（`data` 为预约详情，含展示字段）
+
+```json
+{
+  "code": 0,
+  "message": "签到成功",
+  "data": {
+    "id": 3,
+    "reservationNo": "R202610227035",
+    "status": "CHECKED_IN",
+    "statusText": "使用中",
+    "checkinTime": "2026-10-22 08:03",
+    "seatNo": "A-02",
+    "roomName": "一楼综合阅览室",
+    "slotLabel": "上午",
+    "...": "..."
+  }
+}
+```
+
+**业务规则（与验收标准 US-04 一一对应，校验顺序即错误码优先级）**
+
+| 顺序 | 规则 | 违反时错误码 |
+| --- | --- | --- |
+| 1 | `userId`、`qrcode` 必填 | 40001 |
+| 2 | 二维码格式必须是 `LIBSEAT:ROOM:{roomId}:SEAT:{seatNo}` | 40002 |
+| 3 | 二维码指向的座位存在且未停用 | 40402 / 40903 |
+| 4 | 该用户已有**该座位**的 `CHECKED_IN` 预约（重复扫码） | 50005 |
+| 5 | 该用户存在待签到（`PENDING`）预约 | 50002 |
+| 6 | 扫码座位 = 自己预约的座位 | 50003 |
+| 7 | 当前时间在 `[开始时间 - 15 分钟, 开始时间 + 15 分钟]` 内 | 50001 |
+| 8 | 并发下状态已被别人改走 | 50005 |
+
+> 签到成功后座位图里该座位立即变 `IN_USE`（座位状态由预约记录实时推算，不是另存一份状态）。
+
+## 8. 预约详情（US-03）
+
+`GET /api/reservations/:id?userId=xxx`
+
+**响应 data**：预约完整字段 + 展示字段（`roomName`/`seatNo`/`statusText`/`slotLabel`）+ 以下三个计算字段：
+
+```json
+{
+  "id": 3,
+  "status": "PENDING",
+  "statusText": "待签到",
+  "canCheckin": true,
+  "canCancel": true,
+  "checkinWindow": { "start": "2026-10-22 07:45", "end": "2026-10-22 08:15" },
+  "...": "..."
+}
+```
+
+- `canCheckin`：`PENDING` 且当前时间在签到窗口内 —— 前端用它决定「我要签到」按钮是否可点。
+- `canCancel`：`PENDING`（其他状态都不能取消）。
+- `checkinWindow`：签到窗口的起止时间，用于页面提示「请在 07:45–08:15 之间签到」。
+
+**错误**：`40002` id 非正整数或缺 userId；`40403` 预约不存在**或不属于该 userId**（不暴露存在性）。
+
+## 9. 取消预约（US-05）
+
+`POST /api/reservations/:id/cancel`　`Content-Type: application/json`
+
+**Body**：`{ "userId": "202411701223" }`（必填，用于校验预约归属）
+
+**成功响应 `200`**
+
+```json
+{
+  "code": 0,
+  "message": "取消成功",
+  "data": {
+    "id": 3,
+    "status": "CANCELLED",
+    "statusText": "已取消",
+    "cancelledAt": "2026-10-22 07:20",
+    "seatReleased": true,
+    "...": "..."
+  }
+}
+```
+
+**业务规则**
+
+| 规则 | 违反时错误码 |
+| --- | --- |
+| userId 必填、id 为正整数 | 40001 / 40002 |
+| 预约存在且属于该用户 | 40403 |
+| 当前状态必须是 `PENDING`（`CHECKED_IN` 已使用、`CANCELLED`/`EXPIRED`/`COMPLETED` 为终态） | 50004 |
+| 并发下状态已变化（被别人先签到/先取消） | 50004 |
+
+> 取消后该座位同一时段**立即可以被任何人重新预约**（部分唯一索引只约束 `PENDING`/`CHECKED_IN`，历史记录保留）。PENDING 期间随时可取消，包含开始后 15 分钟宽限期内。
+
+---
+
+## 10. 错误码表
 
 | code | HTTP | 场景 | message |
 | --- | --- | --- | --- |
@@ -241,15 +383,16 @@ curl -X POST http://localhost:3000/api/reservations \
 | 40904 | 409 | 阅览室不开放该时段 | 该时段不在阅览室开放时间内 |
 | 40905 | 409 | 预约开始时间已过 | 预约开始时间已过，无法预约该时段 |
 | 40906 | 409 | 并发抢座失败（唯一约束兜底） | 手慢了，该座位刚刚被其他同学预约 |
-| 50001 | 409 | 不在签到时间窗口（第二棒） | 不在签到时间窗口内 |
-| 50002 | 409 | 无待签到预约（第二棒） | 您当前没有待签到的预约 |
-| 50003 | 409 | 扫码座位不匹配（第二棒） | 座位号不匹配 |
-| 50004 | 409 | 当前状态不可取消（第二棒） | 当前预约状态不允许取消 |
+| 50001 | 409 | 不在签到时间窗口 | 不在签到时间窗口内（开始前 15 分钟至开始后 15 分钟） |
+| 50002 | 409 | 无待签到预约 | 您当前没有待签到的预约 |
+| 50003 | 409 | 扫码座位与预约座位不一致 | 座位号不匹配 |
+| 50004 | 409 | 当前状态不可取消 | 当前预约状态不允许取消 |
+| 50005 | 409 | 重复签到（同一座位已签到） | 该预约已签到，请勿重复扫码 |
 | 50000 | 500 | 未捕获异常 | 服务器开小差了，请稍后重试 |
 
 前端建议：`409xx` 用 toast 提示并刷新座位图（说明数据已变化）；`4xxxxx` 提示即可；`50000` 提示「请稍后重试」。
 
-## 7. 小程序调用示例（第三棒可直接抄）
+## 11. 小程序调用示例（第三棒可直接抄）
 
 ```js
 // utils/request.js
@@ -283,6 +426,22 @@ request('/reservations', {
   method: 'POST',
   data: { userId, userName, roomId, seatId, date, slot },
 }).then((reservation) => wx.navigateTo({ url: `/pages/reserve/success?id=${reservation.id}` }));
+
+// 扫码签到（第二棒）：扫到的结果直接透传给后端，前端不解析二维码内容
+wx.scanCode({
+  success({ result }) {
+    request('/reservations/checkin', { method: 'POST', data: { userId, qrcode: result } })
+      .then((reservation) => wx.redirectTo({ url: `/pages/detail/index?id=${reservation.id}` }));
+  },
+});
+
+// 预约详情（第二棒）：canCheckin / canCancel 直接用，别在前端重算窗口
+request(`/reservations/${id}?userId=${userId}`)
+  .then((detail) => this.setData({ detail }));
+
+// 取消预约（第二棒）
+request(`/reservations/${id}/cancel`, { method: 'POST', data: { userId } })
+  .then(() => wx.showToast({ title: '已取消', icon: 'success' }));
 ```
 
 注意：小程序正式版要求 `https` 且域名需备案；课堂演示用开发者工具勾选「不校验合法域名」即可。
