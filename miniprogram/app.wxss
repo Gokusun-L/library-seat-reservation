@@ -1,0 +1,24 @@
+/* 全局样式与座位状态配色变量。
+   颜色在此统一维护，第四棒做预约/签到交互时直接复用同一套变量即可。 */
+page {
+  /* 座位图四态配色（第三棒「三态配色」任务）：
+     FREE=绿(可约)  RESERVED=黄(已约待签到)  IN_USE=红(使用中)  DISABLED=灰(停用) */
+  --seat-free: #34c759;
+  --seat-reserved: #ffa200;
+  --seat-in-use: #ff3b30;
+  --seat-disabled: #c8c9cc;
+
+  --primary: #2b5cff;
+  --text-main: #1f2329;
+  --text-sub: #8a9099;
+  --bg-page: #f5f6f8;
+  --card-bg: #ffffff;
+
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+view, text, button, input { box-sizing: border-box; }
+button::after { border: none; }

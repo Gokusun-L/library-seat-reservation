@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/rooms/rooms",
+    "pages/seat/seat"
+  ],
+  "window": {
+    "navigationBarTitleText": "图书馆座位预约",
+    "navigationBarBackgroundColor": "#2b5cff",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f6f8",
+    "backgroundTextStyle": "dark"
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

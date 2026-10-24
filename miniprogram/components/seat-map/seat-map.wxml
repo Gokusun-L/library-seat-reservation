@@ -1,0 +1,20 @@
+<view class="seat-map" wx:if="{{layout}}">
+  <view class="seat-row" wx:for="{{rows}}" wx:key="rowIndex" wx:for-item="row">
+    <block wx:for="{{row.cells}}" wx:key="key" wx:for-item="cell">
+      <!-- 过道占位 -->
+      <view wx:if="{{cell.gap}}" class="cell gap"></view>
+      <!-- 数据缺失占位 -->
+      <view wx:elif="{{cell.empty}}" class="cell empty"></view>
+      <!-- 座位 -->
+      <view
+        wx:else
+        class="cell seat seat-{{cell.status}} {{cell.dimmed ? 'dimmed' : ''}} {{cell.status === 'DISABLED' ? 'no-tap' : ''}}"
+        data-id="{{cell.seatId}}"
+        data-status="{{cell.status}}"
+        bindtap="onTapSeat"
+      >
+        <text class="seat-no">{{cell.seatNo}}</text>
+      </view>
+    </block>
+  </view>
+</view>

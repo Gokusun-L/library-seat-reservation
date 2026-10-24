@@ -1,0 +1,48 @@
+.seat-map {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  overflow-x: auto;
+}
+
+.seat-row {
+  display: flex;
+  margin-bottom: 14rpx;
+}
+.seat-row:last-child { margin-bottom: 0; }
+
+/* 单元格：座位与过道/空位占位等宽（响应式：宽度随容器均分） */
+.cell {
+  flex: 1;
+  height: 72rpx;
+  min-width: 0;
+  margin-right: 10rpx;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell:last-child { margin-right: 0; }
+
+/* 过道占位：固定宽度，制造中间断开效果 */
+.cell.gap { flex: 0 0 40rpx; margin-right: 0; background: transparent; }
+.cell.empty { background: transparent; }
+
+/* 座位四态配色（三态 + 停用） */
+.cell.seat { border: 1rpx solid transparent; }
+.seat-free { background: rgba(52, 199, 89, 0.16); border-color: #34c759; }
+.seat-reserved { background: rgba(255, 162, 0, 0.18); border-color: #ffa200; }
+.seat-in-use { background: rgba(255, 59, 48, 0.15); border-color: #ff3b30; }
+.seat-disabled { background: #f0f1f3; border-color: #dcdfe4; }
+
+/* 只看空位：非空位淡化 */
+.cell.dimmed { opacity: 0.12; }
+
+.seat-no {
+  font-size: 20rpx;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 停用座位视觉上不可点 */
+.no-tap { pointer-events: none; }

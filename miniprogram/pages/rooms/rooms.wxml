@@ -1,0 +1,73 @@
+<view class="page">
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索阅览室名称 / 编号 / 楼栋"
+      value="{{keyword}}"
+      confirm-type="search"
+      bindinput="onKeywordInput"
+      bindconfirm="onSearch"
+    />
+    <text wx:if="{{keyword}}" class="search-clear" bindtap="onClearKeyword">×</text>
+  </view>
+
+  <!-- 楼栋筛选 -->
+  <view class="building-tabs">
+    <view
+      wx:for="{{buildings}}"
+      wx:key="*this"
+      class="building-tab {{index === buildingIndex ? 'active' : ''}}"
+      bindtap="onBuildingChange"
+      data-index="{{index}}"
+    >{{item}}</view>
+  </view>
+
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="state-tip">加载中…</view>
+
+  <!-- 错误态 -->
+  <view wx:elif="{{loadError}}" class="state-tip">
+    <text>加载失败，请确认后端服务已启动（npm start）</text>
+    <view class="retry-btn" bindtap="fetchRooms">重新加载</view>
+  </view>
+
+  <!-- 空态 -->
+  <view wx:elif="{{rooms.length === 0}}" class="state-tip">没有找到匹配的阅览室</view>
+
+  <!-- 列表 -->
+  <view wx:else class="room-list">
+    <view
+      wx:for="{{rooms}}"
+      wx:key="id"
+      class="room-card"
+      data-id="{{item.id}}"
+      bindtap="onTapRoom"
+    >
+      <view class="room-head">
+        <view class="room-title">
+          <text class="room-name">{{item.name}}</text>
+          <text class="room-no">{{item.roomNo}}</text>
+        </view>
+        <view class="room-status {{item.isOpen ? 'open' : 'closed'}}">
+          {{item.isOpen ? '开放中' : '已关闭'}}
+        </view>
+      </view>
+
+      <view class="room-meta">
+        <text>{{item.building}} · {{item.floor}} 楼</text>
+        <text>{{item.openTime}} - {{item.closeTime}}</text>
+      </view>
+
+      <view class="room-desc" wx:if="{{item.description}}">{{item.description}}</view>
+
+      <view class="room-foot">
+        <view class="seat-avail">
+          <text class="avail-num {{item.availableSeats > 0 ? '' : 'zero'}}">{{item.availableSeats}}</text>
+          <text class="avail-label">个空位 / 共 {{item.totalSeats}} 座</text>
+        </view>
+        <text class="room-enter">选座 ›</text>
+      </view>
+    </view>
+  </view>
+</view>

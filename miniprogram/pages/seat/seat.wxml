@@ -1,0 +1,61 @@
+<view class="page">
+  <!-- 房间信息头 -->
+  <view class="room-head" wx:if="{{room}}">
+    <view class="room-title">{{room.name}}</view>
+    <view class="room-sub">{{room.roomNo}} · {{room.building}} · {{room.floor}} 楼 · {{room.openTime}}-{{room.closeTime}}</view>
+  </view>
+
+  <!-- 日期 + 时段选择 -->
+  <view class="controls">
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="ctrl-box">{{date}} ▾</view>
+    </picker>
+    <view class="slot-tabs">
+      <view
+        wx:for="{{slots}}"
+        wx:key="code"
+        class="slot-tab {{index === slotIndex ? 'active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onSlotChange"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 统计条（summary 各状态之和恒等于 total，由后端保证） -->
+  <view class="summary" wx:if="{{summary}}">
+    <view class="sum-item"><text class="dot free"></text>空闲 {{summary.FREE}}</view>
+    <view class="sum-item"><text class="dot reserved"></text>已约 {{summary.RESERVED}}</view>
+    <view class="sum-item"><text class="dot inuse"></text>使用中 {{summary.IN_USE}}</view>
+    <view class="sum-item"><text class="dot disabled"></text>停用 {{summary.DISABLED}}</view>
+  </view>
+
+  <!-- 只看空位筛选 -->
+  <view class="filter-row">
+    <text class="filter-label">只看空位</text>
+    <switch checked="{{onlyFree}}" color="#2b5cff" bindchange="onToggleOnlyFree" />
+  </view>
+
+  <!-- 座位图 -->
+  <view wx:if="{{loading}}" class="loading">座位图加载中…</view>
+  <view wx:else class="legend-hint">绿=可约 · 黄=已约待签到 · 红=使用中 · 灰=停用</view>
+  <seat-map
+    layout="{{layout}}"
+    seats="{{seats}}"
+    onlyFree="{{onlyFree}}"
+    bind:select="onSelectSeat"
+  />
+
+  <!-- 座位信息弹窗 -->
+  <view class="mask" wx:if="{{selectedSeat}}" bindtap="onClosePopup"></view>
+  <view class="popup" wx:if="{{selectedSeat}}">
+    <view class="popup-title">座位 {{selectedSeat.seatNo}}</view>
+    <view class="popup-row"><text class="popup-label">状态</text><text>{{selectedSeat.statusText}}</text></view>
+    <view class="popup-row"><text class="popup-label">类型</text><text>{{selectedSeat.typeText}}</text></view>
+    <view class="popup-actions">
+      <view class="btn btn-ghost" bindtap="onClosePopup">关闭</view>
+      <view class="btn btn-primary {{selectedSeat.reservable ? '' : 'disabled'}}" bindtap="onReserve">
+        {{selectedSeat.reservable ? '预约该座位' : '暂不可预约'}}
+      </view>
+    </view>
+  </view>
+</view>

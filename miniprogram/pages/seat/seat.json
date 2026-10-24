@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "座位图",
+  "usingComponents": {
+    "seat-map": "/components/seat-map/seat-map"
+  }
+}
