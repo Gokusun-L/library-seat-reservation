@@ -1,0 +1,94 @@
+.page { padding: 24rpx; }
+
+/* 状态提示 */
+.state-tip {
+  text-align: center;
+  color: var(--text-sub);
+  padding: 120rpx 0;
+  font-size: 28rpx;
+}
+.retry-btn {
+  display: inline-block;
+  margin-top: 24rpx;
+  padding: 16rpx 48rpx;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 40rpx;
+}
+
+/* 顶部状态区：颜色复用座位四态变量，保持视觉一致 */
+.hero {
+  border-radius: 16rpx;
+  padding: 40rpx 32rpx;
+  background: var(--card-bg);
+  border-left: 10rpx solid var(--seat-disabled);
+}
+.hero.status-PENDING { border-left-color: var(--seat-reserved); }
+.hero.status-CHECKED_IN { border-left-color: var(--seat-in-use); }
+.hero.status-COMPLETED { border-left-color: var(--seat-free); }
+
+.hero-status { font-size: 40rpx; font-weight: 700; }
+.hero.status-PENDING .hero-status { color: var(--seat-reserved); }
+.hero.status-CHECKED_IN .hero-status { color: var(--seat-in-use); }
+.hero.status-COMPLETED .hero-status { color: #07c160; }
+.hero.status-EXPIRED .hero-status,
+.hero.status-CANCELLED .hero-status { color: var(--text-sub); }
+
+.hero-hint { margin-top: 12rpx; font-size: 26rpx; color: var(--text-sub); line-height: 1.6; }
+
+/* 卡片 */
+.card {
+  background: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-top: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(31, 35, 41, 0.04);
+}
+
+.card-head { display: flex; align-items: baseline; }
+.seat-no { font-size: 44rpx; font-weight: 700; }
+.room-name { margin-left: 16rpx; font-size: 28rpx; color: var(--text-sub); }
+
+.card-date {
+  display: flex;
+  align-items: baseline;
+  margin-top: 16rpx;
+  font-size: 28rpx;
+}
+.card-date .slot { margin-left: 16rpx; color: var(--primary); }
+.card-date .time { margin-left: 16rpx; color: var(--text-sub); font-size: 24rpx; }
+
+/* 字段列表 */
+.rows { padding: 8rpx 28rpx; }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #f0f1f3;
+  font-size: 26rpx;
+}
+.row:last-child { border-bottom: none; }
+.row-label { color: var(--text-sub); flex: 0 0 auto; margin-right: 24rpx; }
+.row-value { text-align: right; word-break: break-all; }
+
+/* 底部操作栏 */
+.actions {
+  display: flex;
+  margin-top: 40rpx;
+  padding-bottom: 40rpx;
+}
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 26rpx 0;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+}
+.btn-ghost {
+  border: 1rpx solid #d9dce1;
+  color: var(--text-main);
+  margin-right: 20rpx;
+}
+.btn-ghost.disabled { color: var(--text-sub); }
+.btn-primary { background: var(--primary); color: #fff; }

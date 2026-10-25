@@ -1,0 +1,80 @@
+<view class="page">
+  <!-- 加载态 -->
+  <view wx:if="{{loading && !detail}}" class="state-tip">加载中…</view>
+
+  <!-- 错误态 -->
+  <view wx:elif="{{loadError && !detail}}" class="state-tip">
+    <text>加载失败，请确认后端服务已启动（npm start）</text>
+    <view class="retry-btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:elif="{{detail}}">
+    <!-- 顶部状态区 -->
+    <view class="hero status-{{detail.status}}">
+      <view class="hero-status">{{detail.statusText}}</view>
+      <view class="hero-hint">{{hint}}</view>
+    </view>
+
+    <!-- 预约信息 -->
+    <view class="card">
+      <view class="card-head">
+        <text class="seat-no">{{detail.seatNo}}</text>
+        <text class="room-name">{{detail.roomName}}</text>
+      </view>
+      <view class="card-date">
+        <text>{{detail.reserveDate}}</text>
+        <text class="slot">{{detail.slotLabel}}</text>
+        <text class="time">{{detail.startTime}} - {{detail.endTime}}</text>
+      </view>
+    </view>
+
+    <view class="card rows">
+      <view class="row">
+        <text class="row-label">预约编号</text>
+        <text class="row-value">{{detail.reservationNo}}</text>
+      </view>
+      <view class="row">
+        <text class="row-label">阅览室</text>
+        <text class="row-value">{{detail.roomName}}<text wx:if="{{detail.building}}"> · {{detail.building}}</text></text>
+      </view>
+      <view class="row">
+        <text class="row-label">座位号</text>
+        <text class="row-value">{{detail.seatNo}}</text>
+      </view>
+      <view class="row">
+        <text class="row-label">预约时段</text>
+        <text class="row-value">{{detail.reserveDate}} {{detail.slotLabel}} {{detail.startTime}} - {{detail.endTime}}</text>
+      </view>
+      <view class="row" wx:if="{{detail.checkinWindow}}">
+        <text class="row-label">签到窗口</text>
+        <text class="row-value">{{detail.checkinWindow.start}} - {{detail.checkinWindow.end}}</text>
+      </view>
+      <view class="row" wx:if="{{detail.checkinTime}}">
+        <text class="row-label">签到时间</text>
+        <text class="row-value">{{detail.checkinTime}}</text>
+      </view>
+      <view class="row" wx:if="{{detail.cancelledAt}}">
+        <text class="row-label">取消时间</text>
+        <text class="row-value">{{detail.cancelledAt}}</text>
+      </view>
+      <view class="row">
+        <text class="row-label">创建时间</text>
+        <text class="row-value">{{detail.createdAt}}</text>
+      </view>
+    </view>
+
+    <!-- 底部操作：按钮显隐完全由后端 canCheckin / canCancel 控制 -->
+    <view class="actions" wx:if="{{detail.canCheckin || detail.canCancel}}">
+      <view
+        wx:if="{{detail.canCancel}}"
+        class="btn btn-ghost {{submitting ? 'disabled' : ''}}"
+        bindtap="onCancel"
+      >取消预约</view>
+      <view
+        wx:if="{{detail.canCheckin}}"
+        class="btn btn-primary"
+        bindtap="onCheckin"
+      >去签到</view>
+    </view>
+  </block>
+</view>
