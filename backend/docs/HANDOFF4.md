@@ -65,3 +65,6 @@
 4. `miniprogram/pages/checkin/checkin.js`：实现扫码解析、调用签到接口、loading和异常捕获逻辑。
 5. `miniprogram/pages/checkin/checkin.wxml`：签到页面UI、扫码按钮、提示文案布局。
 6. `miniprogram/pages/checkin/checkin.wxss`：签到页面样式定义。
+7. `miniprogram/components/seat-map/seat-map.js`：调整座位状态字段映射逻辑，对齐后端状态标识，排查座位配色渲染异常。
+8. `miniprogram/components/seat-map/seat-map.wxml`：修改样式类绑定表达式，同步状态字段判断规则，适配渲染逻辑。
+9. `miniprogram/components/seat-map/seat-map.wxss`：完善四种座位状态对应的配色样式，补充状态色值规则。
