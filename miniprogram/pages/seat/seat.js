@@ -1,5 +1,6 @@
-const { request } = require('../../utils/request');
+const { request, isConflictError } = require('../../utils/request');
 const { getSlots } = require('../../utils/meta');
+const { currentUser } = require('../../utils/user');
 
 // 座位展示状态 → 中文（与 constants/business.js 的 SEAT_VIEW_STATUS 对应）
 const STATUS_TEXT = {
@@ -15,10 +16,11 @@ const TYPE_TEXT = {
   WINDOW: '靠窗',
 };
 
-// 座位图页（US-01b）
+// 座位图页（US-01b + US-02 提交预约）
 // 依赖接口：
 //   GET /api/reading-rooms/:roomId/layout  静态骨架（行列、colGap）
 //   GET /api/reading-rooms/:roomId/seats?date=&slot=  动态状态（三态 + summary）
+//   POST /api/reservations                 创建预约（第四棒占位，第五棒接上）
 Page({
   data: {
     roomId: null,
@@ -32,6 +34,7 @@ Page({
     onlyFree: false,
     loading: false,
     selectedSeat: null, // 座位信息弹窗数据
+    submitting: false, // 预约请求进行中，防重复点击
   },
 
   onLoad(options) {
@@ -117,8 +120,56 @@ Page({
     this.setData({ selectedSeat: null });
   },
 
-  // 预约动作：第三棒不做，留给第四棒。这里先占位提示。
+  // 提交预约（US-02）：第五棒把第四棒留下的占位接上真实接口
   onReserve() {
-    wx.showToast({ title: '预约功能将在下一阶段开放', icon: 'none' });
+    const seat = this.data.selectedSeat;
+    if (!seat || !seat.reservable || this.data.submitting) return;
+
+    const { roomId, date, slots, slotIndex } = this.data;
+    const slot = slots[slotIndex].code;
+    const { userId, userName } = currentUser();
+
+    this.setData({ submitting: true });
+    wx.showLoading({ title: '预约中…', mask: true });
+
+    request('/reservations', {
+      method: 'POST',
+      data: {
+        userId,
+        userName,
+        roomId,
+        seatId: seat.seatId, // 注意：是座位 ID，不是座位号
+        date,
+        slot,
+      },
+    })
+      .then((res) => {
+        wx.hideLoading();
+        this.setData({ submitting: false, selectedSeat: null });
+        // 后端已补全展示字段，直接用来拼成功提示，不用再查一次
+        wx.showModal({
+          title: '预约成功',
+          content: `${res.roomName} ${res.seatNo}\n${res.reserveDate} ${res.slotLabel}`,
+          confirmText: '查看预约',
+          cancelText: '继续选座',
+          success: (m) => {
+            if (m.confirm) {
+              wx.navigateTo({ url: '/pages/my-reservations/my-reservations' });
+            }
+          },
+        });
+        // 预约成功后座位状态变了，立即重拉座位图
+        this.fetchSeats();
+      })
+      .catch((err) => {
+        wx.hideLoading();
+        this.setData({ submitting: false });
+        // 409xx（座位刚被抢 / 时段重复预约）：数据已变化，刷新座位图
+        if (isConflictError(err)) this.fetchSeats();
+      });
+  },
+
+  onGoMyReservations() {
+    wx.navigateTo({ url: '/pages/my-reservations/my-reservations' });
   },
 });

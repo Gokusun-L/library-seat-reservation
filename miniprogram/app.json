@@ -1,7 +1,10 @@
 {
   "pages": [
     "pages/rooms/rooms",
-    "pages/seat/seat"
+    "pages/seat/seat",
+    "pages/my-reservations/my-reservations",
+    "pages/detail/detail",
+    "pages/checkin/checkin"
   ],
   "window": {
     "navigationBarTitleText": "图书馆座位预约",

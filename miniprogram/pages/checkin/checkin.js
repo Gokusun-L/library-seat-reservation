@@ -1,6 +1,6 @@
 // pages/checkin/checkin.js
 const { request } = require('../../utils/request');
-const DEMO_USER_ID = "202411701223";
+const { currentUser } = require('../../utils/user');
 
 Page({
   data: {
@@ -13,6 +13,7 @@ Page({
 
   // 触发扫码
   handleScan() {
+    const { userId } = currentUser();
     this.setData({ loading: true });
     wx.scanCode({
       success: async (res) => {
@@ -21,7 +22,7 @@ Page({
           const data = await request('/reservations/checkin', {
             method: 'POST',
             data: {
-              userId: DEMO_USER_ID,
+              userId: userId,
               qrcode: qrcodeRaw
             }
           });
@@ -42,7 +43,7 @@ Page({
                     await request('/reservations/checkin', {
                       method: 'POST',
                       data: {
-                        userId: DEMO_USER_ID,
+                        userId: userId,
                         qrcode: qrcodeRaw
                       }
                     });
