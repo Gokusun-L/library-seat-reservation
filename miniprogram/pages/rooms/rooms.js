@@ -58,10 +58,17 @@ Page({
     wx.navigateTo({ url: `/pages/seat/seat?roomId=${id}` });
   },
 
-  // 【新增】跳转扫码签到页
+  // 第四棒：跳转扫码签到页
   goCheckin() {
     wx.navigateTo({
       url: '/pages/checkin/checkin'
+    })
+  },
+
+  // 第五棒：我的预约列表入口
+  goMyReservations() {
+    wx.navigateTo({
+      url: '/pages/my-reservations/my-reservations'
     })
   },
 });

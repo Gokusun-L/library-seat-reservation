@@ -11,10 +11,14 @@
 .search-input { flex: 1; font-size: 28rpx; }
 .search-clear { color: #c0c4cc; font-size: 40rpx; padding: 0 8rpx; }
 
-/* 【新增】签到按钮样式 */
-.checkin-entry-wrap {
-  text-align: right;
+/* 快捷入口行：扫码签到（第四棒） + 我的预约（第五棒） */
+.entry-row {
+  display: flex;
+  justify-content: flex-end;
   margin: 16rpx 0;
+}
+.entry-row button {
+  margin: 0 0 0 16rpx;
 }
 
 .building-tabs {

@@ -12,9 +12,10 @@
     <text wx:if="{{keyword}}" class="search-clear" bindtap="onClearKeyword">×</text>
   </view>
 
-  <!-- 【新增】扫码签到入口按钮 -->
-  <view class="checkin-entry-wrap">
-    <button bindtap="goCheckin" type="primary" size="mini">📷 扫码签到</button>
+  <!-- 快捷入口：扫码签到（第四棒） / 我的预约（第五棒） -->
+  <view class="entry-row">
+    <button bindtap="goCheckin" type="primary" size="mini" plain>📷 扫码签到</button>
+    <button bindtap="goMyReservations" type="primary" size="mini" plain>📋 我的预约</button>
   </view>
 
   <!-- 楼栋筛选 -->

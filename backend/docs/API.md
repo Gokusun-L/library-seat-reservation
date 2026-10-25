@@ -209,7 +209,16 @@ curl -X POST http://localhost:3000/api/reservations \
 
 `GET /api/reservations?userId=xxx&status=PENDING&page=1&pageSize=20`
 
-**Query**：`userId` 必填；`status`、`dateFrom`、`dateTo` 可选；`page` 默认 1，`pageSize` 默认 20（上限 50）。
+**Query**
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| userId | string | 是 | 预约人标识（openid/学号），缺失报 `40001` |
+| status | string | 否 | `PENDING` / `CHECKED_IN` / `COMPLETED` / `CANCELLED` / `EXPIRED`；不传表示全部，取值非法报 `40002` |
+| dateFrom | string | 否 | `YYYY-MM-DD`，预约日期下界（含） |
+| dateTo | string | 否 | `YYYY-MM-DD`，预约日期上界（含） |
+| page | number | 否 | 默认 1 |
+| pageSize | number | 否 | 默认 20，上限 50（超过按 50 处理） |
 
 **响应 data**
 
@@ -220,7 +229,14 @@ curl -X POST http://localhost:3000/api/reservations \
 }
 ```
 
+- 列表项字段与「4. 创建预约」的 `data` 完全一致（两者都经 `reservationService.decorate()` 补全 `roomName` / `building` / `seatNo` / `statusText` / `slotLabel`），前端直接渲染，不再二次拼文案。
+- 无数据时 `list` 为 `[]`、`total` 为 `0`、`totalPages` 为 `0`（不是 `null`）。
+
 排序：预约日期倒序 → 开始时间倒序（最新在前）。
+
+**错误**：`40001` 缺 userId；`40002` status 取值非法、page/pageSize 非数字。
+
+**对应前端页面（第五棒）**：`miniprogram/pages/my-reservations`；触底加载用 `pagination.totalPages` 判断是否还有下一页。
 
 ---
 
