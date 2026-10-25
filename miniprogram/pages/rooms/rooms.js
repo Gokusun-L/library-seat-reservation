@@ -57,4 +57,11 @@ Page({
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: `/pages/seat/seat?roomId=${id}` });
   },
+
+  // 【新增】跳转扫码签到页
+  goCheckin() {
+    wx.navigateTo({
+      url: '/pages/checkin/checkin'
+    })
+  },
 });
