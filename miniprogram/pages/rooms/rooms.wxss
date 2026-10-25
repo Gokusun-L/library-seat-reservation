@@ -11,6 +11,12 @@
 .search-input { flex: 1; font-size: 28rpx; }
 .search-clear { color: #c0c4cc; font-size: 40rpx; padding: 0 8rpx; }
 
+/* 【新增】签到按钮样式 */
+.checkin-entry-wrap {
+  text-align: right;
+  margin: 16rpx 0;
+}
+
 .building-tabs {
   display: flex;
   margin: 24rpx 0;
