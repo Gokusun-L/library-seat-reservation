@@ -12,6 +12,11 @@
     <text wx:if="{{keyword}}" class="search-clear" bindtap="onClearKeyword">×</text>
   </view>
 
+  <!-- 【新增】扫码签到入口按钮 -->
+  <view class="checkin-entry-wrap">
+    <button bindtap="goCheckin" type="primary" size="mini">📷 扫码签到</button>
+  </view>
+
   <!-- 楼栋筛选 -->
   <view class="building-tabs">
     <view
