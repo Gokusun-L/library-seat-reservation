@@ -1,0 +1,60 @@
+<view class="page">
+  <!-- 状态筛选（code 来自 /meta/status，不硬编码枚举） -->
+  <scroll-view class="tabs" scroll-x enable-flex>
+    <view
+      wx:for="{{tabs}}"
+      wx:key="code"
+      class="tab {{index === tabIndex ? 'active' : ''}}"
+      data-index="{{index}}"
+      bindtap="onTabChange"
+    >{{item.label}}</view>
+  </scroll-view>
+
+  <!-- 加载态 -->
+  <view wx:if="{{loading}}" class="state-tip">加载中…</view>
+
+  <!-- 错误态 -->
+  <view wx:elif="{{loadError}}" class="state-tip">
+    <text>加载失败，请确认后端服务已启动（npm start）</text>
+    <view class="retry-btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <!-- 空态 -->
+  <view wx:elif="{{list.length === 0}}" class="state-tip">
+    <text>当前没有{{tabs[tabIndex].label === '全部' ? '' : tabs[tabIndex].label}}的预约记录</text>
+    <view class="retry-btn" bindtap="onGoRooms">去选座</view>
+  </view>
+
+  <!-- 列表 -->
+  <view wx:else class="list">
+    <view
+      wx:for="{{list}}"
+      wx:key="id"
+      class="card status-{{item.status}}"
+      data-id="{{item.id}}"
+      bindtap="onTapItem"
+    >
+      <view class="card-head">
+        <view class="card-title">
+          <text class="seat-no">{{item.seatNo}}</text>
+          <text class="room-name">{{item.roomName}}</text>
+        </view>
+        <view class="badge status-{{item.status}}">{{item.statusText}}</view>
+      </view>
+
+      <view class="card-body">
+        <text class="date">{{item.reserveDate}}</text>
+        <text class="slot">{{item.slotLabel}}</text>
+        <text class="time">{{item.startTime}} - {{item.endTime}}</text>
+      </view>
+
+      <view class="card-foot">
+        <text class="no">{{item.reservationNo}}</text>
+        <text class="enter">查看详情 ›</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loadingMore}}" class="more-tip">加载更多…</view>
+    <view wx:elif="{{page >= totalPages}}" class="more-tip">共 {{total}} 条预约</view>
+  </view>
+</view>

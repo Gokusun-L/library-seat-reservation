@@ -1,0 +1,93 @@
+.page { padding: 24rpx; }
+
+/* 状态筛选 */
+.tabs {
+  display: flex;
+  white-space: nowrap;
+  background: #eceef2;
+  border-radius: 12rpx;
+  padding: 6rpx;
+  margin-bottom: 24rpx;
+}
+.tabs .tab {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+  color: var(--text-sub);
+  border-radius: 8rpx;
+}
+.tabs .tab.active {
+  background: #fff;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* 状态提示（加载/错误/空） */
+.state-tip {
+  text-align: center;
+  color: var(--text-sub);
+  padding: 120rpx 0;
+  font-size: 28rpx;
+}
+.retry-btn {
+  display: inline-block;
+  margin-top: 24rpx;
+  padding: 16rpx 48rpx;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 40rpx;
+}
+
+/* 预约卡片 */
+.card {
+  background: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(31, 35, 41, 0.04);
+  border-left: 8rpx solid var(--seat-disabled);
+}
+.card.status-PENDING { border-left-color: var(--seat-reserved); }
+.card.status-CHECKED_IN { border-left-color: var(--seat-in-use); }
+.card.status-COMPLETED { border-left-color: var(--seat-free); }
+
+.card-head { display: flex; justify-content: space-between; align-items: center; }
+.card-title { display: flex; align-items: baseline; }
+.seat-no { font-size: 34rpx; font-weight: 700; }
+.room-name { margin-left: 16rpx; font-size: 26rpx; color: var(--text-sub); }
+
+.badge {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  color: var(--text-sub);
+  background: #f0f1f3;
+}
+.badge.status-PENDING { color: var(--seat-reserved); background: rgba(255, 162, 0, 0.12); }
+.badge.status-CHECKED_IN { color: var(--seat-in-use); background: rgba(255, 59, 48, 0.12); }
+.badge.status-COMPLETED { color: #07c160; background: rgba(7, 193, 96, 0.12); }
+.badge.status-EXPIRED { color: var(--text-sub); background: #f0f1f3; }
+.badge.status-CANCELLED { color: var(--text-sub); background: #f0f1f3; }
+
+.card-body {
+  display: flex;
+  align-items: baseline;
+  margin-top: 18rpx;
+  font-size: 26rpx;
+}
+.card-body .date { font-weight: 600; }
+.card-body .slot { margin-left: 16rpx; color: var(--primary); }
+.card-body .time { margin-left: 16rpx; color: var(--text-sub); font-size: 24rpx; }
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f1f3;
+}
+.card-foot .no { font-size: 22rpx; color: var(--text-sub); }
+.card-foot .enter { font-size: 26rpx; color: var(--primary); }
+
+.more-tip { text-align: center; color: var(--text-sub); font-size: 24rpx; padding: 24rpx 0 48rpx; }
