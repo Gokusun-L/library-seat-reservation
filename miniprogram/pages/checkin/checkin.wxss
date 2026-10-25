@@ -1,0 +1,38 @@
+/* pages/checkin/checkin.wxss */
+.page {
+    padding: 80rpx 40rpx;
+    background-color: var(--bg-page);
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 24rpx;
+    padding: 80rpx 40rpx;
+    text-align: center;
+  }
+  .title {
+    font-size: 36rpx;
+    font-weight: 600;
+    margin-bottom: 20rpx;
+  }
+  .desc {
+    font-size: 26rpx;
+    color: var(--text-sub);
+    margin-bottom: 60rpx;
+  }
+  .scan-btn {
+    background-color: var(--primary);
+    color: #ffffff;
+    border-radius: 48rpx;
+  }
+  .loading-tip {
+    font-size: 28rpx;
+    color: var(--text-sub);
+    padding:20rpx;
+  }
+  .hint {
+    margin-top:60rpx;
+    font-size:24rpx;
+    color: var(--text-sub);
+    line-height:1.6;
+  }
+  

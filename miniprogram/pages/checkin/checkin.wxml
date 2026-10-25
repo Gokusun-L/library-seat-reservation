@@ -1,0 +1,16 @@
+<!--pages/checkin/checkin.wxml-->
+<view class="page">
+  <view class="card">
+    <view class="title">图书馆座位签到</view>
+    <view class="desc">扫描座位桌角二维码完成到馆签到</view>
+
+    <button wx:if="{{!loading}}" class="scan-btn" bindtap="handleScan">
+      开始扫码签到
+    </button>
+    <view wx:else class="loading-tip">请求处理中…</view>
+
+    <view class="hint">
+      <text>提示：请在预约开始前15分钟至开始后15分钟内签到</text>
+    </view>
+  </view>
+</view>
